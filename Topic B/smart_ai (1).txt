@@ -1,0 +1,116 @@
+﻿import random
+#GamePlay Board
+Board = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+combinations =[
+(3, 5, 7),
+(1, 5, 9),
+(3, 6, 9),
+(2, 5, 8),
+(1, 4, 7),
+(7, 8, 9),
+(4, 5, 6),
+(1, 2, 3)
+]
+
+#3x3 board           Positions 1-9
+def showBoard():
+    print(Board[1], "│", Board[2], "│", Board[3])
+    print("━━━━━━━━━━")
+    print(Board[4], "│", Board[5], "│", Board[6])
+    print("━━━━━━━━━━")
+    print(Board[7], "│", Board[8], "│", Board[9])
+
+
+#Checks each line for winning combination
+def checkLine(player, spot1, spot2, spot3):
+    if Board[spot1] == player and Board[spot2] == player and Board[spot3] == player:
+        return True
+
+#Checks all of the possible combinations for the player
+def checkWinner(player):
+   for combination in combinations:
+    if checkLine(player, combination[0], combination[1], combination[2]):
+        return True
+  
+
+def _read_row(combination):
+    return Board[combination[0]],Board[combination[1]],Board[combination[2]]
+
+def computerMove(board):
+    cleaned_list = ['X' if 'X' == s else 'O' if 'O' == s else ' ' for s in board]
+    cleaned_list.pop(0)
+
+
+    '''
+    [' ', 'O', 'O', 'O', 'X', 'X', ' ', 'X', ' ']
+
+                is the cleaned list for 
+                        1 │ O │ O
+                        ━━━━━━━━━━
+                        O │ X │ X
+                        ━━━━━━━━━━
+                        7 │ X │ O
+    '''
+
+    for combination in combinations:
+        # So for each combination possible that you can win in
+        # you read what the row actually is. So like is anything in the combination 1,2,3 marked
+
+        spots = _read_row(combination)
+
+        if spots.count('X') == 2:
+            #Are there 2 X's in a row? If yes, we need to block the player from winning
+            for pos in spots: #find out what position is not X in that combination
+
+                if pos != 'X':
+                    if Board[combination[spots.index(pos)]] != 'O': #check if that position is not already occupied
+                        Board[combination[spots.index(pos)]] = 'O' #put o in that position to stop x from winning
+                        return None #stop the function cause using break would cause there to be two moves.
+          
+    #this code only runs if there was nothing to block for the ai. now it just randomly puts something.
+    while True:
+        O = random.randint(1, 9)
+        if Board[O] != 'O' and Board[O] != 'X':
+            Board[O] = 'O'
+            break
+        #do random move
+
+#Game function for each of the moves and the gameplay
+while True:
+    showBoard()
+    #user input (1-9)     User= X
+    try:
+      X = int(input("Choose a spot (1-9):"))
+      val=int(X)
+    except:
+      print("Please put a valid number")
+      continue;
+    if Board[X] != 'O' and Board[X] != 'X':
+        Board[X] = 'X'
+    else:
+        print("This spot is already being used by the computer, sorry :(")
+
+    #Checks if X won the game or not
+    if checkWinner('X') == True:
+        showBoard()
+        print("!!You have managed to beat the Computer, Congratulations!!")
+        break
+
+    #Checks if game is a tie
+    if checkWinner('O') == False and checkWinner('X') == False:
+        showBoard()
+        print('!!DRAW!!')
+        break
+
+    #comuter Move   Computer= O
+    a = Board
+    computerMove(a)
+    #AI Modifications
+
+    #showBoard()
+    #Checks if X won the game or not
+    if checkWinner('O') == True:
+        print('!!Pathetic, the Computer has beated you, You Lose!!')
+        showBoard()
+        break
